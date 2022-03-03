@@ -56,6 +56,10 @@ const App = () => {
       const user = JSON.parse(loggedUserJSON);
       setUser(user);
       blogService.setToken(user.token);
+
+      blogService.getAll().then((blogs) => {
+        setBlogs(blogs);
+      });
     }
   }, []);
 
@@ -104,9 +108,13 @@ const App = () => {
         <div>
           <p>{user.name} logged in</p>
           {blogForm()}
+          <ul>
+            {blogs.map((blog, i) => (
+              <li key={i}>{blog.title}</li>
+            ))}
+          </ul>
         </div>
       )}
-      <div></div>
     </div>
   );
 };
