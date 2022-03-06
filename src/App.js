@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
+import "./styles.css";
 import Blog from "./components/Blog";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
-  const [newBlog, setNewBlog] = useState("");
+  const [newTitle, setNewTitle] = useState("");
+  const [newAuthor, setNewAuthor] = useState("");
+  const [newUrl, setNewUrl] = useState("");
   const [showAll, setShowAll] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
   const [username, setUsername] = useState("");
@@ -35,12 +38,32 @@ const App = () => {
     }
   };
 
-  const handleBlogChange = (event) => {
-    newBlog(event.target.value);
+  const handleTitleChange = (event) => {
+    setNewTitle(event.target.value);
   };
 
-  const addBlog = (event) => {
+  const handleAuthorChange = (event) => {
+    setNewAuthor(event.target.value);
+  };
+
+  const handleUrlChange = (event) => {
+    setNewUrl(event.target.value);
+  };
+
+  const addBlog = async (event) => {
     event.preventDefault();
+
+    const blogObject = {
+      title: newTitle,
+      author: newAuthor,
+      url: newUrl,
+    };
+    try {
+      await blogService.create(blogObject);
+      setBlogs(blogs.concat(blogObject));
+    } catch (error) {
+      console.log("Nyt meni bitti vinoon");
+    }
   };
 
   const logout = () => {
@@ -64,11 +87,18 @@ const App = () => {
   }, []);
 
   const blogForm = () => (
-    <form onSubmit={addBlog}>
-      <input value={newBlog} onChange={handleBlogChange} />
-      <button type="submit">save</button>
+    <div>
+      <form onSubmit={addBlog}>
+        <label>Title</label>
+        <input value={newTitle} onChange={handleTitleChange} />
+        <label>Author</label>
+        <input value={newAuthor} onChange={handleAuthorChange} />
+        <label>Url</label>
+        <input value={newUrl} onChange={handleUrlChange} />
+        <button type="submit">save</button>
+      </form>
       <button onClick={logout}>Logout</button>
-    </form>
+    </div>
   );
 
   const loginForm = () => (
