@@ -3,17 +3,30 @@ import "./styles.css";
 import Blog from "./components/Blog";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
+import { Notification } from "./Notification";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
   const [newTitle, setNewTitle] = useState("");
   const [newAuthor, setNewAuthor] = useState("");
   const [newUrl, setNewUrl] = useState("");
-  const [showAll, setShowAll] = useState(true);
-  const [errorMessage, setErrorMessage] = useState(null);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
+  const [notification, setNotification] = useState({
+    message: "",
+    status: "",
+  });
+
+  const showNotification = (status, message) => {
+    setNotification({ status, message });
+    setTimeout(() => {
+      clearNotification();
+    }, 3000);
+  };
+  const clearNotification = () => {
+    setNotification({ status: "", message: "" });
+  };
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -30,11 +43,9 @@ const App = () => {
       setUser(user);
       setUsername("");
       setPassword("");
-    } catch (exception) {
-      setErrorMessage("wrong credentials");
-      setTimeout(() => {
-        setErrorMessage(null);
-      }, 5000);
+    } catch (error) {
+      console.log(error);
+      showNotification("error", `Wrong credentials`);
     }
   };
 
@@ -61,8 +72,14 @@ const App = () => {
     try {
       await blogService.create(blogObject);
       setBlogs(blogs.concat(blogObject));
+      console.log("Onnistui");
+      showNotification(
+        "success",
+        `a new blog ${blogObject.title} by ${blogObject.author} was posted!`
+      );
     } catch (error) {
-      console.log("Nyt meni bitti vinoon");
+      console.log(error);
+      showNotification("error", `Could not post blog`);
     }
   };
 
@@ -131,7 +148,7 @@ const App = () => {
   return (
     <div>
       <h1>Blogs</h1>
-
+      <Notification notification={notification} />
       {user === null ? (
         loginForm()
       ) : (
